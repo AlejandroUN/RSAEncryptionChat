@@ -24,7 +24,8 @@ class user:
     def getN(self):
         return self.n
 
-gg = user(3,11)
+if __name__ == "__main__":
+    gg = user(3,11)
 
-print(gg.sendMessage("hola"))
-print(gg.receiveMessage(gg.sendMessage("hola")))
+    print(gg.sendMessage("hola"))
+    print(gg.receiveMessage(gg.sendMessage("hola")))

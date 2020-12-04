@@ -43,7 +43,9 @@ class rsa:
                 resultOfExpoModN = resultOfExpoModN * int(y)
             decodedMessage += str(chr((resultOfExpoModN % n)+96))
         return decodedMessage
-gg = rsa()
-print(gg.codificateMessage(33,7,"holaz"))
-print(gg.decodeMessage(33,3,gg.codificateMessage(33,7,"holaz")))
-print(gg.findInverse(7,20))
+
+if __name__ == "__main__":          
+    gg = rsa()
+    print(gg.codificateMessage(33,7,"holaz"))
+    print(gg.decodeMessage(33,3,gg.codificateMessage(33,7,"holaz")))
+    print(gg.findInverse(7,20))
