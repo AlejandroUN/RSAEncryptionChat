@@ -1,31 +1,32 @@
-from rsa import rsa
+from RSA import RSA
 
 
-class user:
+class User:
 
-
-    def __init__(self, p, q):
+    def __init__(self):
         self.p = p
         self.q = q
-        self.n = rsa.findN(self,p,q)
-        self.totient = rsa.findTotient(self, p, q)
-        self.e = rsa.findTotientCoprime(self, self.totient)
-        self.d = rsa.findInverse(self, self.e, self.totient)
+        self.n = RSA.find_n(self,p,q)
+        self.totient = RSA.find_totient(self, p, q)
+        self.e = RSA.find_totient_coprime(self, self.totient)
+        self.d = RSA.find_inverse(self, self.e, self.totient)
+        self.public_key = (n, e)
 
-    def sendMessage(self, message):
-        return rsa.codificateMessage(self, self.n, self.e, message)
+    def send_message(self, message):
+        return RSA.codificate_message(self, self.n, self.e, message)
 
-    def receiveMessage(self, message):
-        return rsa.decodeMessage(self, self.n, self.d, message)
+    def receive_message(self, message):
+        return RSA.decode_message(self, self.n, self.d, message)
 
     def test(self):
-        return rsa.findN(self,3,11)
+        return RSA.find_n(self,3,11)
 
-    def getN(self):
+    def get_n(self):
         return self.n
 
 if __name__ == "__main__":
-    gg = user(3,11)
 
-    print(gg.sendMessage("hola"))
-    print(gg.receiveMessage(gg.sendMessage("hola")))
+    gg = User(3,11)
+
+    print(gg.send_message("hola"))
+    print(gg.receive_message(gg.send_message("hola")))
