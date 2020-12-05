@@ -25,7 +25,6 @@ class RSA:
     def find_totient(p, q):
         return ((p-1)*(q-1))
 
-    #findTotientCoprime not working
     def find_e(totient):
         posible_e = [3,5,17,257, 65537]
         return random.choice(posible_e)
