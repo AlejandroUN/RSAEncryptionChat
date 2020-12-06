@@ -11,10 +11,7 @@ class RSA:
 
     def __init__(self, p, q):
 
-        #soon get random p and q using Miller-Rabin
-        #devolverlo esto a user de nuevo
-        #primes = [i for i in range(1000,2000) if RSA.isPrime(i)]
-        #some random primes 14741 17159 1866367 1105141
+        #soon get random p and q using Miller-Rabi
         self.p = p
         self.q = q
         self.n = self.p*self.q
@@ -23,6 +20,9 @@ class RSA:
         self.d = RSA.find_inverse(self.e, self.totient)
         self.public_key = (self.n, self.e)
         self.private_key = self.d
+
+        self.cp = RSA.find_inverse(self.q, self.p)
+        self.cq = RSA.find_inverse(self.p, self.q)
     
     def find_totient(p, q):
         return ((p-1)*(q-1))
@@ -56,64 +56,76 @@ class RSA:
                 return x
         return 0
 
-    def fast_exponentiation(base, exponent):
+    def fast_exponentiation(base, exponent, modulus):
         '''
         Exponentiation-by-squaring algorithm.
         '''
         binary_exponent = f"{exponent:b}"
         result = base
         for binary_digit in binary_exponent[1:]:
-            result = result * result
+            result = (result * result) % modulus 
             if(int(binary_digit)==1):
-                result = result * base
+                result = (result * base) % modulus  
         return result
 
     #using fast_exponentiation
     def codificate_message(self, n, e, message):
         coded_message = ""
         for x in message:
-            x_ascii = ord(x)%n
-            encoded_ascii = RSA.fast_exponentiation(x_ascii, e)
-            coded_message += str(encoded_ascii%n) + "/"
+            x_ascii = ord(x)
+            encoded_ascii = RSA.fast_exponentiation(x_ascii, e, n)
+            coded_message += str(encoded_ascii) + "/"
         return coded_message[:-1]
 
-    def decode_message(self, coded_message):
+    def decode_message(self, coded_message, crt = True, modular=False):
         decoded_message = "" 
         coded_message = coded_message.split("/")
         for y in coded_message:
-            result_modular_exp = RSA.fast_exponentiation(int(y), self.d)
-            decoded_message += str(chr(result_modular_exp%self.n))
+            if crt: result_modular_exp = self.crt_domain_reduction(int(y))
+            if modular: result_modular_exp = RSA.fast_exponentiation(int(y), self.d, self.n)
+            decoded_message += str(chr(result_modular_exp))
         return decoded_message
 
+    def crt_domain_reduction(self, x):
+        x_p = x % self.p
+        x_q = x % self.q
+
+        d_p = self.d % (self.p-1)
+        d_q = self.d % (self.q-1)
+
+        y_p = RSA.fast_exponentiation(x_p, d_p, self.p)
+        y_q = RSA.fast_exponentiation(x_q, d_q, self.q)
+
+        c_p = self.cp
+        c_q = self.cq
+
+        return ((self.q*c_p)*y_p + (self.p*c_q)*y_q)% self.n
+
 if __name__ == "__main__":          
-    
-    #191 193 197 199 211 223 227 229
-    #233 239 241 251 257 263 269 271 277 281
-    #283 293 307
-    #Test
+
     Alice = RSA(191, 193)
     Bob = RSA(241,239)
     Chuck = RSA(211, 223)
-    print("Bob n {}, e {}, totient {}, d {}".format(Bob.n, Bob.e, Bob.totient, Bob.d))
-    print("Alice n {}, e {}, totient {}, d {}".format(Alice.n, Alice.e, Alice.totient, Alice.d))
-    print("Chuck n {}, e {} , totient {}, d {}".format(Chuck.n, Chuck.e, Chuck.totient, Chuck.d))
+
+    print("Bob n {}, e {}, totient {}, d {} cp {} cq {}".format(Bob.n, Bob.e, Bob.totient, Bob.d, Bob.cp, Bob.cq))
+    print("Alice n {}, e {}, totient {}, d {} cp {} cq {}".format(Alice.n, Alice.e, Alice.totient, Alice.d, Alice.cp, Alice.cq))
+    print("Chuck n {}, e {} , totient {}, d {} cp {} cq {}".format(Chuck.n, Chuck.e, Chuck.totient, Chuck.d, Chuck.cp, Chuck.cq))
 
     #Alice sends a message to Bob
     #somehow send Bob's pk to Alice at the start, use Bob's pk to encrypt
 
-    alice_message = Alice.codificate_message(Bob.n, Bob.e, "And yet it works")
-    print("encrypted msg by alice ", alice_message)
+    alice_message = Alice.codificate_message(Bob.n, Bob.e, "you now quasimodo predicted all of this")
+    print("Encrypted msg by alice ", alice_message)
     # Bob uses d to decrypt
     bob_decrypt = Bob.decode_message(alice_message)
     print("Bob decrypts Alice msg: ", bob_decrypt)
 
     
-    bob_message = Bob.codificate_message(Alice.n, Alice.e, "hopefully")
+    bob_message = Bob.codificate_message(Alice.n, Alice.e, "who did what")
     print("encrypted msg by bob ", bob_message)
     alice_decrypt = Alice.decode_message(bob_message)
     print("Alice decrypts Bob's msg", alice_decrypt)
 
-    
     #Now Chuck tries to read their messages using his private key
     chuck_decrypts_alice = Chuck.decode_message(alice_message)
     chuck_decrypts_bob = Chuck.decode_message(bob_message)
@@ -121,3 +133,5 @@ if __name__ == "__main__":
     print("Chuck starts")
     print("Chuck tries to decrypt alice's msg", chuck_decrypts_alice)
     print("Chuck tries to decrypt bob's msg", chuck_decrypts_bob)
+
+    
