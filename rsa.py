@@ -50,11 +50,24 @@ class RSA:
         else:
             return RSA.gcd(b, a%b)
 
+    # Find inverse using euclid's extended algorithm
     def find_inverse(e, totient):
-        for x in range(2, totient):
-            if (e*x)%totient == 1:
-                return x
-        return 0
+        m0 = totient
+        y = 0
+        x = 1
+        if (totient == 1):
+            return 0
+        while (e > 1):
+            q = e // totient
+            t = totient
+            totient = e % totient
+            e = t
+            t = y
+            y = x - q * y
+            x = t
+        if (x < 0):
+            x = x + m0
+        return x
 
     def fast_exponentiation(base, exponent, modulus):
         '''
@@ -68,7 +81,7 @@ class RSA:
                 result = (result * base) % modulus  
         return result
 
-    #using fast_exponentiation
+        # using fast_exponentiation
     def codificate_message(self, n, e, message):
         coded_message = ""
         for x in message:
