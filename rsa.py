@@ -68,7 +68,7 @@ class RSA:
             x = x + m0
         return x
 
-def fast_exponentiation(base, exponent, modulus):
+    def fast_exponentiation(base, exponent, modulus):
         '''
         Exponentiation-by-squaring algorithm.
         '''
@@ -80,7 +80,7 @@ def fast_exponentiation(base, exponent, modulus):
                 result = (result * base) % modulus  
         return result
 
-    #using fast_exponentiation
+        # using fast_exponentiation
     def codificate_message(self, n, e, message):
         coded_message = ""
         for x in message:
