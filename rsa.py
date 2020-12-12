@@ -51,12 +51,24 @@ class RSA:
             return RSA.gcd(b, a%b)
 
     def find_inverse(e, totient):
-        for x in range(2, totient):
-            if (e*x)%totient == 1:
-                return x
-        return 0
+        m0 = totient
+        y = 0
+        x = 1
+        if (totient == 1):
+            return 0
+        while (e > 1):
+            q = e // totient
+            t = totient
+            totient = e % totient
+            e = t
+            t = y
+            y = x - q * y
+            x = t
+        if (x < 0):
+            x = x + m0
+        return x
 
-    def fast_exponentiation(base, exponent, modulus):
+def fast_exponentiation(base, exponent, modulus):
         '''
         Exponentiation-by-squaring algorithm.
         '''
