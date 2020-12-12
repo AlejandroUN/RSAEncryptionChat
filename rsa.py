@@ -50,6 +50,7 @@ class RSA:
         else:
             return RSA.gcd(b, a%b)
 
+    # Find inverse using euclid's extended algorithm
     def find_inverse(e, totient):
         m0 = totient
         y = 0
