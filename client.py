@@ -9,10 +9,11 @@ from rsa import RSA
 
 HEADER_LENGTH = 100
 
-IP = "127.0.0.1"
+IP = ""127.0.0.1""
 PORT = 5555
+FORMAT = 'utf-8'
 
-if(len(sys.argv) < 4):
+if(len(sys.argv) < 6):
     print("{}-{}".format(sys.argv[1], sys.argv[2]))
     rsa = RSA(int(sys.argv[1]), int(sys.argv[2]))
 else:
@@ -31,9 +32,9 @@ client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((IP, PORT))
 client_socket.setblocking(False)
 
-username = public_key.encode('utf-8')
+username = public_key.encode(FORMAT)
 
-username_header = f"{len(username):<{HEADER_LENGTH}}".encode('utf-8')
+username_header = f"{len(username):<{HEADER_LENGTH}}".encode(FORMAT)
 
 client_socket.send(username_header + username)
 
@@ -51,13 +52,13 @@ while True:
         if(other_user_pk != None):
             print("Enviando mensaje a usuario con pk", message, other_user_n, other_user_e)
             message = rsa.codificate_message(other_user_n, other_user_e, message)
-            message = message.encode('utf-8')
-            message_header = f"{len(message):<{HEADER_LENGTH}}".encode('utf-8')
+            message = message.encode(FORMAT)
+            message_header = f"{len(message):<{HEADER_LENGTH}}".encode(FORMAT)
             client_socket.send(message_header + message)
         else: 
             print("Esperando otro usuario. No se encodificara ningun mensaje")
-            message = '0'.encode('utf-8')
-            message_header = f"{len(message):<{HEADER_LENGTH}}".encode('utf-8')
+            message = '0'.encode(FORMAT)
+            message_header = f"{len(message):<{HEADER_LENGTH}}".encode(FORMAT)
             client_socket.send(message_header + message)
 
     try:
@@ -74,21 +75,21 @@ while True:
                 sys.exit()
 
             # Convert header to int value
-            username_length = int(username_header.decode('utf-8').strip())
+            username_length = int(username_header.decode(FORMAT).strip())
 
             # Receive and decode username
-            username = client_socket.recv(username_length).decode('utf-8')
+            username = client_socket.recv(username_length).decode(FORMAT)
 
-            # For now the other's user's pk is his username. So take it and encrypt messages with them
+            # For now the other user's pk is his username. So take it and encrypt messages with them
             
             other_user_pk = re.split("-", username)
             other_user_n = int(other_user_pk[0])
             other_user_e = int(other_user_pk[1])
 
             message_header = client_socket.recv(HEADER_LENGTH)
-            message_length = int(message_header.decode('utf-8').strip())
+            message_length = int(message_header.decode(FORMAT).strip())
 
-            message = client_socket.recv(message_length).decode('utf-8')
+            message = client_socket.recv(message_length).decode(FORMAT)
             mensaje = rsa.decode_message(message)
 
             print(f'{username} > {mensaje}')

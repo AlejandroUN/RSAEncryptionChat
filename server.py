@@ -17,7 +17,7 @@ server_socket.listen()
 
 sockets_list = [server_socket]
 
-# List of connected clients - socket as a key, user header and name as data
+# List of connected clients
 clients = {}
 
 print(f'Listening on {IP}:{PORT}...')
